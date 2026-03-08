@@ -6,210 +6,154 @@
     <title>Crypto & Stegano Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
-        <h1 class="text-2xl font-bold mb-6 text-center text-indigo-600">🔐 Crypto & Stegano Suite</h1>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-6 text-slate-800">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-3xl">
+        <h1 class="text-3xl font-black mb-8 text-center text-indigo-600 tracking-tight">🔐 SECURITY SUITE</h1>
         
-        <div class="border-b mb-6 pb-2 flex justify-center space-x-8">
-            <button id="tab-crypto" onclick="switchTab('crypto')" class="font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1">Criptografia</button>
-            <button id="tab-stego" onclick="switchTab('stego')" class="font-bold text-gray-400 hover:text-indigo-500 pb-1">Esteganografia</button>
+        <div class="flex space-x-2 mb-8 bg-slate-100 p-1 rounded-xl">
+            <button onclick="switchTab('symmetric')" id="tab-symmetric" class="flex-1 py-2 rounded-lg font-bold transition-all bg-white shadow text-indigo-600">SIMÉTRICA</button>
+            <button onclick="switchTab('asymmetric')" id="tab-asymmetric" class="flex-1 py-2 rounded-lg font-bold transition-all text-slate-500 hover:text-indigo-600">ASSIMÉTRICA</button>
+            <button onclick="switchTab('stego')" id="tab-stego" class="flex-1 py-2 rounded-lg font-bold transition-all text-slate-500 hover:text-indigo-600">ESTEGANOGRAFIA</button>
         </div>
 
-        <div id="cryptoSection" class="space-y-4">
-            <div class="space-y-4">
+        <div id="section-symmetric" class="space-y-6">
+            <div class="grid gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Arquivo (até 500MB)</label>
-                    <input type="file" id="file" class="w-full border p-2 rounded mt-1">
+                    <label class="text-sm font-bold text-slate-500">ARQUIVO ORIGINAL</label>
+                    <input type="file" id="file-sym" class="w-full mt-1 border-2 border-slate-100 p-2 rounded-lg">
                 </div>
-                
-                <div id="passwordContainer">
-                    <label class="block text-sm font-medium text-gray-700">Chave/Senha (8 ou 128 chars)</label>
-                    <input type="text" id="password" class="w-full border p-2 rounded mt-1" placeholder="Digite sua senha">
-                </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Método</label>
-                    <select id="method" class="w-full border p-2 rounded mt-1">
-                    <option value="symmetric">Simétrica (AES-GCM)</option>
-                    <option value="asymmetric">Assimétrica (RSA Híbrida)</option>
-                </select>
+                    <label class="text-sm font-bold text-slate-500">SENHA AES</label>
+                    <input type="password" id="pass-sym" class="w-full mt-1 border-2 border-slate-100 p-3 rounded-lg focus:border-indigo-500 outline-none" placeholder="Digite a senha (ex: 8 ou 128 chars)">
                 </div>
-
-                <div id="privateKeyUpload" class="hidden p-3 bg-red-50 border border-red-200 rounded">
-                    <label class="block text-sm font-medium text-red-600">Sua Chave Privada (.txt)</label>
-                    <input type="file" id="keyFile" class="w-full border p-2 rounded border-red-200 bg-white">
-                    <p class="text-[10px] text-red-500 mt-1">* Necessária apenas para descriptografia assimétrica.</p>
-                </div>
-
-                <div class="flex space-x-2">
-                    <button onclick="runCrypto('encrypt')" class="flex-1 bg-indigo-600 text-white py-2 rounded font-semibold hover:bg-indigo-700 transition">
-                        Criptografar
-                    </button>
-                    <button onclick="runCrypto('decrypt')" class="flex-1 bg-gray-600 text-white py-2 rounded font-semibold hover:bg-gray-700 transition">
-                        Descriptografar
-                    </button>
+                <div class="flex gap-4">
+                    <button onclick="runCrypto('symmetric', 'encrypt')" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">CRIPTOGRAFAR</button>
+                    <button onclick="runCrypto('symmetric', 'decrypt')" class="flex-1 bg-slate-700 text-white py-3 rounded-xl font-bold hover:bg-slate-800">DESCRIPTOGRAFAR</button>
                 </div>
             </div>
         </div>
 
-        <div id="stegoSection" class="hidden space-y-4">
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Imagem de Fundo (Carrier PNG)</label>
-                    <input type="file" id="stegoImage" class="w-full border p-2 rounded mt-1" accept="image/png">
+        <div id="section-asymmetric" class="hidden space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="relative">
+                    <label class="text-[10px] font-black text-slate-400 uppercase">Chave Pública</label>
+                    <textarea id="pub-key" readonly class="w-full h-24 mt-1 p-2 bg-slate-50 border rounded-lg text-[10px] font-mono break-all"></textarea>
+                    <button onclick="copy('pub-key')" class="absolute top-6 right-2 text-xs bg-white px-2 py-1 border rounded shadow hover:bg-indigo-50">COPIAR</button>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Arquivo para Esconder</label>
-                    <input type="file" id="fileToHide" class="w-full border p-2 rounded mt-1">
+                <div class="relative">
+                    <label class="text-[10px] font-black text-red-400 uppercase">Chave Privada (🔒 SIGILO)</label>
+                    <textarea id="priv-key" readonly class="w-full h-24 mt-1 p-2 bg-red-50 border border-red-100 rounded-lg text-[10px] font-mono break-all text-red-800"></textarea>
+                    <button onclick="copy('priv-key')" class="absolute top-6 right-2 text-xs bg-white px-2 py-1 border rounded shadow hover:bg-red-50">COPIAR</button>
                 </div>
+            </div>
+            <button onclick="generateKeys()" class="w-full py-2 bg-slate-100 rounded-lg text-xs font-bold hover:bg-slate-200 transition">✨ GERAR NOVO PAR DE CHAVES RSA</button>
 
-                <div class="flex space-x-2">
-                    <button onclick="runStego('hide')" class="flex-1 bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 transition">
-                        Esconder (Hide)
-                    </button>
-                    <button onclick="runStego('reveal')" class="flex-1 bg-yellow-600 text-white py-2 rounded font-semibold hover:bg-yellow-700 transition">
-                        Revelar (Reveal)
-                    </button>
+            <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 space-y-4">
+                <input type="file" id="file-asym" class="w-full border-2 border-white p-2 rounded-lg bg-white">
+                <div>
+                    <label class="text-sm font-bold text-indigo-900">COLE A CHAVE AQUI</label>
+                    <textarea id="key-input" class="w-full h-20 mt-1 p-3 border-2 border-white rounded-lg text-[10px] font-mono outline-none focus:border-indigo-300" placeholder="Cole a chave pública para criptografar ou a privada para descriptografar..."></textarea>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="runCrypto('asymmetric', 'encrypt')" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">CRIPTOGRAFAR</button>
+                    <button onclick="runCrypto('asymmetric', 'decrypt')" class="flex-1 bg-slate-700 text-white py-3 rounded-xl font-bold hover:bg-slate-800">DESCRIPTOGRAFAR</button>
                 </div>
             </div>
         </div>
 
-        <div id="loading" class="mt-4 hidden text-center text-sm text-gray-500 animate-pulse">
-            Processando... por favor aguarde.
+        <div id="section-stego" class="hidden space-y-6">
+            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 space-y-4">
+                <div>
+                    <label class="text-sm font-bold text-emerald-900">IMAGEM DE FUNDO (PNG)</label>
+                    <input type="file" id="stego-img" class="w-full mt-1 border-2 border-white p-2 rounded-lg bg-white" accept="image/png">
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-emerald-900">ARQUIVO PARA ESCONDER</label>
+                    <input type="file" id="stego-file" class="w-full mt-1 border-2 border-white p-2 rounded-lg bg-white">
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="runStego('hide')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700">ESCONDER (HIDE)</button>
+                    <button onclick="runStego('reveal')" class="flex-1 bg-amber-600 text-white py-3 rounded-xl font-bold hover:bg-amber-700">REVELAR (REVEAL)</button>
+                </div>
+            </div>
         </div>
 
-        <div id="result" class="mt-6 hidden p-4 bg-green-50 border border-green-200 rounded">
-            <p class="text-green-700 font-bold">✅ Sucesso!</p>
-            <p id="timeResult" class="text-sm text-green-600 font-medium"></p>
-            <div class="flex flex-col space-y-2 mt-3">
-                <a id="downloadLink" href="#" class="text-indigo-600 underline text-sm font-bold">⬇️ Baixar Resultado</a>
-                <a id="keyDownloadLink" href="#" class="hidden text-red-600 underline text-sm font-bold">🔑 Baixar Chave Privada (SALVE ISTO!)</a>
+        <div id="loading" class="mt-6 hidden text-center text-indigo-600 font-bold animate-pulse">⚙️ PROCESSANDO...</div>
+        <div id="result" class="mt-6 hidden p-6 bg-slate-800 text-white rounded-2xl shadow-inner">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-emerald-400 font-black">SUCESSO!</p>
+                    <p id="time-display" class="text-xs text-slate-400"></p>
+                </div>
+                <a id="down-link" href="#" class="bg-indigo-500 hover:bg-indigo-400 px-6 py-2 rounded-lg font-bold text-sm transition">BAIXAR ARQUIVO</a>
             </div>
         </div>
     </div>
 
     <script>
-    // 1. Lógica para mostrar o campo da chave apenas quando necessário (O que você pediu)
-    document.getElementById('method').addEventListener('change', function() {
-        const isAsymmetric = this.value === 'asymmetric';
-        const passContainer = document.getElementById('passwordContainer');
-        const keyUpload = document.getElementById('privateKeyUpload');
-
-        if (isAsymmetric) {
-            passContainer.classList.add('hidden'); // Esconde senha
-            keyUpload.classList.remove('hidden'); // Mostra upload de chave
-        } else {
-            passContainer.classList.remove('hidden'); // Mostra senha
-            keyUpload.classList.add('hidden');       // Esconde upload de chave
-        }
-    });
-
-    // 2. Lógica de Alternar Abas (Crypto / Stego)
-    function switchTab(tab) {
-        const cryptoSection = document.getElementById('cryptoSection');
-        const stegoSection = document.getElementById('stegoSection');
-        const tabCrypto = document.getElementById('tab-crypto');
-        const tabStego = document.getElementById('tab-stego');
-        
-        document.getElementById('result').classList.add('hidden');
-
-        if (tab === 'crypto') {
-            cryptoSection.classList.remove('hidden');
-            stegoSection.classList.add('hidden');
-            tabCrypto.className = "font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1";
-            tabStego.className = "font-bold text-gray-400 hover:text-indigo-500 pb-1";
-        } else {
-            stegoSection.classList.remove('hidden');
-            cryptoSection.classList.add('hidden');
-            tabStego.className = "font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1";
-            tabCrypto.className = "font-bold text-gray-400 hover:text-indigo-500 pb-1";
-        }
-    }
-
-    // 3. Executar Criptografia/Decriptografia
-    async function runCrypto(action) {
-        const file = document.getElementById('file').files[0];
-        const method = document.getElementById('method').value;
-        
-        if (!file) return alert("Selecione um arquivo!");
-        
-        showLoading(true);
-        const formData = new FormData();
-        formData.append('action', action);
-        formData.append('file', file);
-        formData.append('method', method);
-
-        if (method === 'symmetric') {
-            const password = document.getElementById('password').value;
-            if (!password) { showLoading(false); return alert("Digite a senha!"); }
-            formData.append('password', password);
-        } else if (action === 'decrypt') {
-            const keyFile = document.getElementById('keyFile').files[0];
-            if (!keyFile) { showLoading(false); return alert("Selecione o arquivo de chave privada!"); }
-            formData.append('key_file', keyFile);
+        function switchTab(tab) {
+            ['symmetric', 'asymmetric', 'stego'].forEach(t => {
+                document.getElementById(`section-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).className = "flex-1 py-2 rounded-lg font-bold transition-all text-slate-500 hover:text-indigo-600";
+            });
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).className = "flex-1 py-2 rounded-lg font-bold transition-all bg-white shadow text-indigo-600";
+            document.getElementById('result').classList.add('hidden');
         }
 
-        try {
-            const res = await fetch('/crypt_action', { method: 'POST', body: formData });
+        async function generateKeys() {
+            const res = await fetch('/generate_keys');
             const data = await res.json();
-            if (data.status === 'success') {
-                showResult(data.time, data.download_url);
-                // Se o servidor enviou uma URL de chave (no caso de encrypt asymmetric)
-                if (data.key_url) {
-                    const kLink = document.getElementById('keyDownloadLink');
-                    kLink.href = data.key_url;
-                    kLink.classList.remove('hidden');
-                }
-            } else {
-                alert("Erro: " + data.message);
-            }
-        } catch (err) {
-            alert("Erro na conexão.");
-        } finally {
-            showLoading(false);
-        }
-    }
-
-    // 4. Esteganografia
-    async function runStego(action) {
-        const imageFile = document.getElementById('stegoImage').files[0];
-        if (!imageFile) return alert("Selecione uma imagem!");
-
-        showLoading(true);
-        const formData = new FormData();
-        formData.append('action', action);
-        formData.append('image', imageFile);
-
-        if (action === 'hide') {
-            const fileToHide = document.getElementById('fileToHide').files[0];
-            if (!fileToHide) { showLoading(false); return alert("Selecione o arquivo para esconder!"); }
-            formData.append('file_to_hide', fileToHide);
+            document.getElementById('pub-key').value = data.public_key;
+            document.getElementById('priv-key').value = data.private_key;
         }
 
-        try {
-            const res = await fetch('/steganography', { method: 'POST', body: formData });
-            const data = await res.json();
-            if (data.status === 'success') showResult(data.time, data.download_url);
-            else alert("Erro: " + data.message);
-        } catch (err) {
-            alert("Erro no processamento.");
-        } finally {
-            showLoading(false);
+        function copy(id) {
+            const el = document.getElementById(id);
+            el.select();
+            navigator.clipboard.writeText(el.value);
+            alert("Chave copiada!");
         }
-    }
 
-    function showLoading(state) {
-        document.getElementById('loading').classList.toggle('hidden', !state);
-        document.getElementById('result').classList.add('hidden');
-        document.getElementById('keyDownloadLink').classList.add('hidden');
-    }
+        async function runCrypto(method, action) {
+            const file = document.getElementById(method === 'symmetric' ? 'file-sym' : 'file-asym').files[0];
+            if(!file) return alert("Selecione o arquivo!");
+            
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('method', method);
+            fd.append('action', action);
 
-    function showResult(time, url) {
-        document.getElementById('result').classList.remove('hidden');
-        document.getElementById('timeResult').innerText = "Tempo de execução: " + time;
-        document.getElementById('downloadLink').href = url;
-    }
+            if(method === 'symmetric') fd.append('password', document.getElementById('pass-sym').value);
+            else fd.append('key_text', document.getElementById('key-input').value);
+
+            processRequest('/crypt_action', fd);
+        }
+
+        async function runStego(action) {
+            const img = document.getElementById('stego-img').files[0];
+            if(!img) return alert("Selecione a imagem!");
+            const fd = new FormData();
+            fd.append('image', img);
+            fd.append('action', action);
+            if(action === 'hide') fd.append('file_to_hide', document.getElementById('stego-file').files[0]);
+            processRequest('/steganography', fd);
+        }
+
+        async function processRequest(url, fd) {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            try {
+                const res = await fetch(url, { method: 'POST', body: fd });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    document.getElementById('result').classList.remove('hidden');
+                    document.getElementById('time-display').innerText = "Processamento: " + data.time;
+                    document.getElementById('down-link').href = data.download_url;
+                } else alert(data.message);
+            } catch(e) { alert("Erro de conexão."); }
+            finally { document.getElementById('loading').classList.add('hidden'); }
+        }
     </script>
 </body>
 </html>
