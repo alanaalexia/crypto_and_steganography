@@ -73,3 +73,6 @@ Run the Application:
 Bash
 python app.py
 Access the UI at http://127.0.0.1:5000
+
+
+"Para garantir a reprodutibilidade e o isolamento das dependências, utilizou-se um ambiente virtual (venv), gerenciando as bibliotecas Flask, Cryptography e Pillow de forma independente do interpretador global do sistema."
