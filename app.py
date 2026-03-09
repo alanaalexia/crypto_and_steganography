@@ -62,12 +62,20 @@ def crypt_action():
     file.save(input_path)
     
     # --- LÓGICA DE NOMES DE ARQUIVO (Limpeza de .enc) ---
-    root, ext = os.path.splitext(input_path)
     if action == 'decrypt':
-        # Se for imagem.png.enc, o root vira imagem.png
-        nome_limpo = os.path.basename(root).replace('.enc', '')
-        output_path = os.path.join(UPLOAD_FOLDER, f"dec_{nome_limpo}{ext}")
+        # Pegamos o nome do arquivo enviado (ex: imagem.png.enc)
+        filename = file.filename
+        
+        # Se ele terminar em .enc, removemos essa extensão
+        if filename.lower().endswith('.enc'):
+            nome_original = filename[:-4] # Remove os últimos 4 caracteres (.enc)
+        else:
+            nome_original = filename
+            
+        # O arquivo final será salvo como dec_imagem.png
+        output_path = os.path.join(UPLOAD_FOLDER, f"dec_{nome_original}")
     else:
+        # Na criptografia, apenas adicionamos o .enc ao final
         output_path = input_path + ".enc"
 
     try:
