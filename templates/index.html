@@ -8,7 +8,7 @@
 </head>
 <body class="bg-slate-900 min-h-screen flex items-center justify-center p-6 text-slate-800">
     <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-3xl">
-        <h1 class="text-3xl font-black mb-8 text-center text-indigo-600 tracking-tight">🔐 SECURITY SUITE</h1>
+        <h1 class="text-3xl font-black mb-8 text-center text-indigo-600 tracking-tight">🐍 CHAMBER OF SECRETS 🐍</h1>
         
         <div class="flex space-x-2 mb-8 bg-slate-100 p-1 rounded-xl">
             <button onclick="switchTab('symmetric')" id="tab-symmetric" class="flex-1 py-2 rounded-lg font-bold transition-all bg-white shadow text-indigo-600">SIMÉTRICA</button>
@@ -62,20 +62,18 @@
         </div>
 
         <div id="section-stego" class="hidden space-y-6">
-            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 space-y-4">
                 <div>
-                    <label class="text-sm font-bold text-emerald-900">IMAGEM DE FUNDO (PNG)</label>
-                    <input type="file" id="stego-img" class="w-full mt-1 border-2 border-white p-2 rounded-lg bg-white" accept="image/png">
+                    <label class="text-sm font-bold text-slate-500">IMAGEM DE FUNDO (PNG)</label>
+                    <input type="file" id="file-sym" class="w-full mt-1 border-2 border-slate-100 p-2 rounded-lg">
                 </div>
                 <div>
-                    <label class="text-sm font-bold text-emerald-900">ARQUIVO PARA ESCONDER</label>
-                    <input type="file" id="stego-file" class="w-full mt-1 border-2 border-white p-2 rounded-lg bg-white">
+                    <label class="text-sm font-bold text-slate-500">ARQUIVO PARA ESCONDER</label>
+                    <input type="file" id="file-sym" class="w-full mt-1 border-2 border-slate-100 p-2 rounded-lg">
                 </div>
                 <div class="flex gap-4">
-                    <button onclick="runStego('hide')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700">ESCONDER (HIDE)</button>
-                    <button onclick="runStego('reveal')" class="flex-1 bg-amber-600 text-white py-3 rounded-xl font-bold hover:bg-amber-700">REVELAR (REVEAL)</button>
+                    <button onclick="runCrypto('symmetric', 'encrypt')" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">ESCONDER</button>
+                    <button onclick="runCrypto('symmetric', 'encrypt')" class="flex-1 bg-slate-700 text-white py-3 rounded-xl font-bold hover:bg-slate-800">REVELAR</button>
                 </div>
-            </div>
         </div>
 
         <div id="loading" class="mt-6 hidden text-center text-indigo-600 font-bold animate-pulse">⚙️ PROCESSANDO...</div>
