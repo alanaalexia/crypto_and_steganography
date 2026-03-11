@@ -5,31 +5,28 @@ from flask import Flask, render_template, request, send_file, jsonify
 from crypt_engine import CryptoEngine
 from stego_engine import StegoEngine
 from cryptography.hazmat.primitives import serialization
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Configurações de Upload
-# Aumentamos o limite para 600MB para garantir que o teste de 500MB passe sem erro
+# --- CONFIGURAÇÕES ---
 app.config['MAX_CONTENT_LENGTH'] = 600 * 1024 * 1024 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Instância dos motores
 engine = CryptoEngine()
 stego_engine = StegoEngine()
 
-# --- UTILITÁRIOS PARA CHAVES RSA ---
+# --- UTILITÁRIOS ---
 
 def strip_pem(pem_string):
-    """Remove os delimitadores -----BEGIN...----- e quebras de linha."""
     return re.sub(r'-----.*?-----|\s+', '', pem_string)
 
 def wrap_pem(clean_text, is_private=True):
-    """Reconstrói o formato PEM que a biblioteca cryptography exige."""
     tag = "PRIVATE KEY" if is_private else "PUBLIC KEY"
     return f"-----BEGIN {tag}-----\n{clean_text}\n-----END {tag}-----"
 
-# --- ROTAS PRINCIPAIS ---
+# --- ROTAS ---
 
 @app.route('/')
 def index():
@@ -37,7 +34,6 @@ def index():
 
 @app.route('/generate_keys', methods=['GET'])
 def generate_keys():
-    """Gera um par de chaves e envia apenas o conteúdo Base64 para o front."""
     try:
         priv, pub = engine.generate_rsa_keys()
         priv_pem, pub_pem = engine.export_keys_to_strings(priv, pub)
@@ -51,37 +47,35 @@ def generate_keys():
 
 @app.route('/crypt_action', methods=['POST'])
 def crypt_action():
-    action = request.form.get('action') # 'encrypt' ou 'decrypt'
-    method = request.form.get('method') # 'symmetric' ou 'asymmetric'
+    action = request.form.get('action') 
+    method = request.form.get('method')
     file = request.files.get('file')
     
-    if not file:
+    if not file or file.filename == '':
         return jsonify({'status': 'error', 'message': 'Selecione um arquivo'}), 400
 
-    input_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    # 1. Sanitiza o nome original
+    raw_filename = secure_filename(file.filename)
+    input_path = os.path.join(UPLOAD_FOLDER, raw_filename)
     file.save(input_path)
     
-    # --- LÓGICA DE NOMES DE ARQUIVO (Limpeza de .enc) ---
-    if action == 'decrypt':
-        # Pegamos o nome do arquivo enviado (ex: imagem.png.enc)
-        filename = file.filename
-        
-        # Se ele terminar em .enc, removemos essa extensão
-        if filename.lower().endswith('.enc'):
-            nome_original = filename[:-4] # Remove os últimos 4 caracteres (.enc)
-        else:
-            nome_original = filename
-            
-        # O arquivo final será salvo como dec_imagem.png
-        output_path = os.path.join(UPLOAD_FOLDER, f"dec_{nome_original}")
+    # 2. LÓGICA DE PREFIXO (CORRIGIDA)
+    # Removemos qualquer ".enc" existente no nome para evitar "enc_arquivo.txt.enc"
+    base_name = raw_filename.replace('.enc', '')
+    
+    if action == 'encrypt':
+        output_name = f"enc_{base_name}"
     else:
-        # Na criptografia, apenas adicionamos o .enc ao final
-        output_path = input_path + ".enc"
+        # Se for decriptar, remove o prefixo 'enc_' se ele existir
+        if base_name.startswith('enc_'):
+            output_name = f"dec_{base_name[4:]}"
+        else:
+            output_name = f"dec_{base_name}"
+
+    output_path = os.path.join(UPLOAD_FOLDER, output_name)
 
     try:
         duration = 0
-        
-        # 1. MODO SIMÉTRICO (AES)
         if method == 'symmetric':
             password = request.form.get('password')
             if not password:
@@ -92,27 +86,21 @@ def crypt_action():
             else:
                 duration = engine.decrypt_symmetric(input_path, output_path, password)
         
-        # 2. MODO ASSIMÉTRICO (RSA)
         else:
             key_text = request.form.get('key_text', '').strip()
             if not key_text:
-                return jsonify({'status': 'error', 'message': 'Cole a chave PEM no campo'}), 400
+                return jsonify({'status': 'error', 'message': 'Chave PEM ausente'}), 400
             
             if action == 'encrypt':
-                # O usuário pode colar a Pública OU a Privada para criptografar
-                # Tentamos carregar como Pública primeiro
                 try:
                     pem = wrap_pem(key_text, is_private=False)
                     key_obj = serialization.load_pem_public_key(pem.encode())
                 except:
-                    # Se falhar, tenta carregar como Privada e extrai a Pública dela
                     pem = wrap_pem(key_text, is_private=True)
                     key_obj = serialization.load_pem_private_key(pem.encode(), password=None).public_key()
                 
                 duration = engine.encrypt_asymmetric(input_path, output_path, key_obj)
-            
             else:
-                # Na decriptografia, a Privada é obrigatória
                 pem = wrap_pem(key_text, is_private=True)
                 key_obj = engine.load_private_key(pem.encode())
                 duration = engine.decrypt_asymmetric(input_path, output_path, key_obj)
@@ -120,11 +108,11 @@ def crypt_action():
         return jsonify({
             'status': 'success',
             'time': f"{duration:.4f}s",
-            'download_url': f"/download/{os.path.basename(output_path)}"
+            'download_url': f"/download/{output_name}"
         })
 
     except Exception as e:
-        return jsonify({'status': 'error', 'message': f"Falha: {str(e)}"}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/steganography', methods=['POST'])
 def steganography():
@@ -132,18 +120,20 @@ def steganography():
     image_file = request.files.get('image')
     
     if not image_file:
-        return jsonify({'status': 'error', 'message': 'Imagem carrier não selecionada'}), 400
+        return jsonify({'status': 'error', 'message': 'Imagem não selecionada'}), 400
 
-    img_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
+    img_name = secure_filename(image_file.filename)
+    img_path = os.path.join(UPLOAD_FOLDER, img_name)
     image_file.save(img_path)
 
     try:
         if action == 'hide':
             secret_file = request.files.get('file_to_hide')
-            hide_path = os.path.join(UPLOAD_FOLDER, secret_file.filename)
+            secret_name = secure_filename(secret_file.filename)
+            hide_path = os.path.join(UPLOAD_FOLDER, secret_name)
             secret_file.save(hide_path)
             
-            output_name = f"stego_{os.path.splitext(image_file.filename)[0]}.png"
+            output_name = f"stego_{os.path.splitext(img_name)[0]}.png"
             output_path = os.path.join(UPLOAD_FOLDER, output_name)
 
             start = time.perf_counter()
@@ -167,8 +157,8 @@ def steganography():
 
 @app.route('/download/<filename>')
 def download(filename):
+    # Garante que o download use o nome exato gerado
     return send_file(os.path.join(UPLOAD_FOLDER, filename), as_attachment=True)
 
 if __name__ == '__main__':
-    # Rode com debug=True para reiniciar o servidor ao salvar arquivos
     app.run(debug=True)
