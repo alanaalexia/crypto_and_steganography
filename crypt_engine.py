@@ -41,8 +41,6 @@ class CryptoEngine:
     # --- CRIPTOGRAFIA ASSIMÉTRICA (RSA HÍBRIDA) ---
     # Nota: RSA não cifra 500MB diretamente. Ciframos o arquivo com AES 
     # e ciframos a chave AES com RSA.
-    
-    
 
     def generate_rsa_keys(self):
         private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
