@@ -62,18 +62,20 @@
         </div>
 
         <div id="section-stego" class="hidden space-y-6">
+            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 space-y-4">
                 <div>
-                    <label class="text-sm font-bold text-slate-500">IMAGEM DE FUNDO (PNG)</label>
-                    <input type="file" id="file-sym" class="w-full mt-1 border-2 border-slate-100 p-2 rounded-lg">
+                    <label class="text-sm font-bold text-emerald-900">IMAGEM DE FUNDO (PNG)</label>
+                    <input type="file" id="stego-img" class="w-full mt-1 border-2 border-white p-2 rounded-lg bg-white" accept="image/png">
                 </div>
                 <div>
-                    <label class="text-sm font-bold text-slate-500">ARQUIVO PARA ESCONDER</label>
-                    <input type="file" id="file-sym" class="w-full mt-1 border-2 border-slate-100 p-2 rounded-lg">
+                    <label class="text-sm font-bold text-emerald-900">ARQUIVO PARA ESCONDER</label>
+                    <input type="file" id="stego-file" class="w-full mt-1 border-2 border-white p-2 rounded-lg bg-white">
                 </div>
                 <div class="flex gap-4">
-                    <button onclick="runCrypto('symmetric', 'encrypt')" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">ESCONDER</button>
-                    <button onclick="runCrypto('symmetric', 'encrypt')" class="flex-1 bg-slate-700 text-white py-3 rounded-xl font-bold hover:bg-slate-800">REVELAR</button>
+                    <button onclick="runStego('hide')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700">ESCONDER</button>
+                    <button onclick="runStego('reveal')" class="flex-1 bg-amber-600 text-white py-3 rounded-xl font-bold hover:bg-amber-700">REVELAR</button>
                 </div>
+            </div>
         </div>
 
         <div id="loading" class="mt-6 hidden text-center text-indigo-600 font-bold animate-pulse">⚙️ PROCESSANDO...</div>

@@ -31,9 +31,19 @@ class CryptoEngine:
             f_out.write(salt)   # 16 bytes
             f_out.write(nonce)  # 12 bytes
             
-            while chunk := f_in.read(self.chunk_size):
+            while True:
+                # 1. Tenta ler um pedaço do arquivo
+                chunk = f_in.read(self.chunk_size)
+                
+                # 2. Se o resultado for vazio, significa que o arquivo acabou
+                if not chunk:
+                    break 
+                    
+                # 3. Se chegou aqui, há dados para criptografar
                 # No AES-GCM, o chunk cifrado terá a tag de autenticação embutida
                 encrypted_chunk = aesgcm.encrypt(nonce, chunk, None)
+                
+                # 4. Grava o pedaço trancado no novo arquivo
                 f_out.write(encrypted_chunk)
         
         return time.perf_counter() - start_time
