@@ -1,0 +1,11 @@
+# Web Framework
+Flask==3.0.3
+
+# Cryptography (AES-GCM, RSA)
+cryptography==42.0.5
+
+# Image Processing (LSB Steganography)
+Pillow==10.2.0
+
+# Production Server (Opcional, mas recomendado para o GitHub)
+gunicorn==21.2.0
