@@ -1,78 +1,50 @@
-🔐 CryptoStegano-PySuite
-A high-performance web application built with Python (Flask) for advanced cryptographic operations and image steganography. This suite is designed to handle large-scale data (up to 500MB) and analyze the performance of various security algorithms.
+# Chamber of Secrets 🔒📂
 
-🚀 Features
-1. Symmetric Encryption (AES-256-GCM)
-Variable Key Lengths: Supports 8 to 128-character keys using PBKDF2HMAC (Password-Based Key Derivation Function 2) to normalize any input into a secure 256-bit key.
+Chamber of Secrets is a full-stack web application designed to provide a dual-layer data protection system. By combining Hybrid Encryption and Image Steganography, the tool allows users to not only encrypt sensitive information but also hide it within media files, making it nearly impossible for unauthorized parties to detect.
 
-Streaming Architecture: Uses a chunk-based processing method (64KB blocks) to ensure files as large as 500MB can be encrypted without crashing the system's RAM.
+## 🚀 Key Features
+- Symmetric Encryption (AES-GCM): High-performance encryption used for processing large datasets (up to 500 MB) while ensuring data integrity.
 
-Authenticated Encryption: Uses GCM (Galois/Counter Mode) to ensure data integrity and authenticity.
+- Asymmetric Encryption (RSA): Implemented for secure session key exchange, allowing safe communication between users.
 
-2. Asymmetric Encryption (RSA-4096)
-Hybrid Cryptography: To handle files of 500MB (which exceed standard RSA block limits), the system generates a random AES session key to encrypt the file, then wraps that key with the recipient's RSA Public Key.
+- LSB Steganography (Least Significant Bit): A data-hiding technique for PNG files. The message is embedded into the least significant bits of the image pixels, keeping the carrier image visually identical to the original.
 
-Security: Implements PKCS1v15 padding for maximum compatibility and security.
+- Full-Stack Dashboard: A modern, intuitive interface for uploading, processing, and downloading encrypted or hidden data.
 
-3. Image Steganography (LSB)
-LSB Technique: Hides encrypted payloads within the Least Significant Bits of a PNG image's pixels.
+## 🛠️ Tech Stack
+- Backend: Python with Flask;
 
-Payload Capacity: Includes a pre-flight check to verify if the carrier image has enough pixels to store the requested file (crucial for the 1MB vs 500MB test cases).
+- Security: cryptography library (AES-GCM and RSA implementations);
 
-🛠️ Tech Stack
-Backend: Python 3.x, Flask.
+- Image Processing: Pillow (PIL) for pixel-level manipulation;
 
-Security: cryptography library (Hazmat layer for high performance).
+- Frontend: HTML5, Tailwind CSS and JavaScript.
 
-Image Processing: Pillow (PIL) for pixel manipulation.
+## 🧠 Technical Architecture
+### LSB Steganography
+The LSB technique replaces the least significant bit of each color channel (RGB) with bits from the encrypted message. This ensures the data is distributed across the image so that any generated noise remains imperceptible to the human eye.
 
-Frontend: HTML5, JavaScript (ES6), Tailwind CSS for a modern UI.
+### Hybrid Encryption Model
+To balance the security of RSA with the efficiency of AES, the project follows a hybrid approach:
 
-📊 Benchmarking & Analysis (Requirement C)
-The application includes a testing module to generate the data required for the final report. Tests are conducted on:
+- Raw data is encrypted using AES-GCM.
 
-File Sizes: 1 MB and 500 MB.
+- The generated symmetric key is then encrypted with the recipient's RSA Public Key.
 
-Key Lengths: 8 characters and 128 characters.
+- The final package contains the encrypted payload and the protected key.
 
-Repetitions: Each test is executed 3 times to calculate the average execution time.
+## 🔧 Installation & Setup
+1. Clone the repository:
 
-Expected Technical Findings:
-Key Length Impact: You will notice that the execution time for an 8-char key vs. a 128-char key is nearly identical, as the KDF overhead is constant regardless of the file size.
+`git clone https://github.com/your-username/chamber-of-secrets.git
+cd chamber-of-secrets`
 
-Memory Management: By using Python's open(file, 'rb') with chunks, the memory footprint stays low (approx. 50-100MB) even when processing a 500MB file.
+2. Install dependencies:
 
-📂 Project Structure
-Plaintext
-├── app.py              # Flask Backend & API Routes
-├── logic/
-│   ├── symmetric.py    # AES-GCM implementation
-│   ├── asymmetric.py   # RSA Hybrid implementation
-│   └── steganography.py# LSB Image logic
-├── templates/          # HTML Frontend
-├── static/             # CSS/JS files
-├── tests/              # Scripts to generate 1MB/500MB dummy files
-└── README.md
-⚙️ Setup & Installation
-Clone the repository:
+`pip install -r requirements.txt`
 
-Bash
-git clone https://github.com/your-username/CryptoStegano-PySuite.git
-cd CryptoStegano-PySuite
-Create a Virtual Environment:
+3. Run the application:
 
-Bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-Install Dependencies:
+`python app.py`
 
-Bash
-pip install flask cryptography Pillow
-Run the Application:
-
-Bash
-python app.py
-Access the UI at http://127.0.0.1:5000
-
-
-"Para garantir a reprodutibilidade e o isolamento das dependências, utilizou-se um ambiente virtual (venv), gerenciando as bibliotecas Flask, Cryptography e Pillow de forma independente do interpretador global do sistema."
+4. Access the app at `http://localhost:5000` in your browser.
